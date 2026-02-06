@@ -1,81 +1,188 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <title>About Me</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<title>Quản lý Sinh Viên</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- Google Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f4f6f8;
+        margin: 0;
+        padding: 30px;
+    }
 
-    <style>
-        body {
-            margin: 0;
-            font-family: 'Inter', sans-serif;
-            background-color: #f9f9f9;
-            color: #222;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
+    h1 {
+        text-align: center;
+    }
 
-        .container {
-            max-width: 600px;
-            text-align: center;
-            padding: 20px;
-        }
+    .container {
+        max-width: 900px;
+        margin: auto;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
 
-        h1 {
-            font-weight: 600;
-            margin-bottom: 10px;
-        }
+    input {
+        padding: 8px;
+        margin: 5px;
+        width: 18%;
+    }
 
-        p {
-            font-weight: 300;
-            line-height: 1.6;
-            margin-bottom: 20px;
-        }
+    button {
+        padding: 8px 12px;
+        margin: 5px;
+        cursor: pointer;
+    }
 
-        .links a {
-            text-decoration: none;
-            color: #444;
-            margin: 0 10px;
-            font-weight: 400;
-            transition: 0.2s;
-        }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
 
-        .links a:hover {
-            color: #000;
-        }
+    th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: center;
+    }
 
-        footer {
-            margin-top: 30px;
-            font-size: 0.85rem;
-            color: #888;
-        }
-    </style>
+    th {
+        background: #f0f0f0;
+    }
+
+    .action-btn {
+        padding: 4px 8px;
+        margin: 2px;
+        cursor: pointer;
+    }
+</style>
 </head>
 
 <body>
-    <div class="container">
-        <h1>Hi, I'm Nguyen</h1>
 
-        <p>
-            Currently this is just a simple HTML project of mine.
-        </p>
-        
-        <p>
-            Fun fact about me: I like turtles!
-        </p>
+<div class="container">
+    <h1>Quản Lý Sinh Viên</h1>
 
-        <div class="links">
-            <a href="https://www.youtube.com/watch?v=FyaYkfgVyog" target="_blank">Turtle video :D</a>
-        </div>
-
-        <footer>
-            © 2026 Nguyen
-        </footer>
+    <div>
+        <input type="text" id="masv" placeholder="Mã SV">
+        <input type="text" id="hoten" placeholder="Họ và tên">
+        <input type="date" id="ngaysinh">
+        <input type="text" id="lop" placeholder="Lớp">
+        <input type="number" step="0.01" id="gpa" placeholder="GPA">
+        <button onclick="addStudent()">Thêm</button>
     </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Mã SV</th>
+                <th>Họ và tên</th>
+                <th>Ngày sinh</th>
+                <th>Lớp</th>
+                <th>GPA</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody id="studentTable">
+        </tbody>
+    </table>
+</div>
+
+<script>
+class Student {
+    constructor(masv, hoten, ngaysinh, lop, gpa) {
+        this.masv = masv;
+        this.hoten = hoten;
+        this.ngaysinh = ngaysinh;
+        this.lop = lop;
+        this.gpa = gpa;
+    }
+
+    updateInfo(hoten, ngaysinh, lop, gpa) {
+        this.hoten = hoten;
+        this.ngaysinh = ngaysinh;
+        this.lop = lop;
+        this.gpa = gpa;
+    }
+}
+
+let students = [];
+let editingIndex = -1;
+
+function addStudent() {
+    const masv = document.getElementById("masv").value;
+    const hoten = document.getElementById("hoten").value;
+    const ngaysinh = document.getElementById("ngaysinh").value;
+    const lop = document.getElementById("lop").value;
+    const gpa = document.getElementById("gpa").value;
+
+    if (!masv || !hoten || !ngaysinh || !lop || !gpa) {
+        alert("Vui lòng nhập đầy đủ thông tin!");
+        return;
+    }
+
+    if (editingIndex === -1) {
+        const student = new Student(masv, hoten, ngaysinh, lop, gpa);
+        students.push(student);
+    } else {
+        students[editingIndex].updateInfo(hoten, ngaysinh, lop, gpa);
+        editingIndex = -1;
+    }
+
+    clearForm();
+    displayStudents();
+}
+
+function displayStudents() {
+    const table = document.getElementById("studentTable");
+    table.innerHTML = "";
+
+    students.forEach((student, index) => {
+        table.innerHTML += `
+            <tr>
+                <td>${student.masv}</td>
+                <td>${student.hoten}</td>
+                <td>${student.ngaysinh}</td>
+                <td>${student.lop}</td>
+                <td>${student.gpa}</td>
+                <td>
+                    <button class="action-btn" onclick="editStudent(${index})">Sửa</button>
+                    <button class="action-btn" onclick="deleteStudent(${index})">Xóa</button>
+                </td>
+            </tr>
+        `;
+    });
+}
+
+function editStudent(index) {
+    const student = students[index];
+
+    document.getElementById("masv").value = student.masv;
+    document.getElementById("hoten").value = student.hoten;
+    document.getElementById("ngaysinh").value = student.ngaysinh;
+    document.getElementById("lop").value = student.lop;
+    document.getElementById("gpa").value = student.gpa;
+
+    editingIndex = index;
+}
+
+function deleteStudent(index) {
+    students.splice(index, 1);
+    displayStudents();
+}
+
+function clearForm() {
+    document.getElementById("masv").value = "";
+    document.getElementById("hoten").value = "";
+    document.getElementById("ngaysinh").value = "";
+    document.getElementById("lop").value = "";
+    document.getElementById("gpa").value = "";
+}
+</script>
+
 </body>
 </html>
